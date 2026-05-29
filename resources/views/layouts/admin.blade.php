@@ -243,6 +243,13 @@
         </nav>
 
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            @if(\App\Models\Setting::get('maintenance_mode', '0') === '1')
+                <div class="alert alert-warning shadow-sm">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Platform maintenance mode is enabled.
+                </div>
+            @endif
+
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-3 mb-4" style="border-bottom: 1px solid var(--tr-border);">
                 <h1 class="h3 fw-bold mb-0">@yield('page_title', 'Dashboard')</h1>
             </div>

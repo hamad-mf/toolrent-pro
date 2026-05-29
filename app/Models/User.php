@@ -33,6 +33,11 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    public function processedRentals()
+    {
+        return $this->hasMany(Rental::class, 'user_id');
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->role && $this->role->slug === Role::SUPER_ADMIN;

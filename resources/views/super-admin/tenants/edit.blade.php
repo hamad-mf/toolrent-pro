@@ -34,6 +34,11 @@
                 </div>
             </div>
 
+            <div class="mb-3">
+                <label class="form-label">Secondary Brand Color</label>
+                <input type="color" name="secondary_color" class="form-control form-control-color w-100" value="{{ old('secondary_color', $tenant->secondary_color) }}">
+            </div>
+
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Plan</label>
@@ -59,6 +64,20 @@
                     <div class="mb-2"><img src="{{ asset('storage/' . $tenant->logo) }}" height="40"></div>
                 @endif
                 <input type="file" name="logo" class="form-control" accept="image/*">
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Favicon</label>
+                @if($tenant->favicon)
+                    <div class="mb-2"><img src="{{ asset('storage/' . $tenant->favicon) }}" height="24"></div>
+                @endif
+                <input type="file" name="favicon" class="form-control" accept=".ico,.png,.jpg,.jpeg,.svg">
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Custom CSS</label>
+                <textarea name="custom_css" class="form-control" rows="4" placeholder="Optional trusted tenant CSS">{{ old('custom_css', $tenant->custom_css) }}</textarea>
+                <div class="form-text">Only add CSS from trusted shop administrators.</div>
             </div>
 
             <div class="mb-4">

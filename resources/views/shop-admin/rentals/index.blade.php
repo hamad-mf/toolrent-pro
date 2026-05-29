@@ -6,7 +6,7 @@
 @section('content')
 <div class="card">
     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom-0">
-        <h5 class="mb-0 fw-bold">Active & Recent Rentals</h5>
+        <h5 class="mb-0 fw-bold">Bookings, Active & Recent Rentals</h5>
         <a href="{{ route('shop-admin.rentals.create') }}" class="btn btn-primary btn-sm">
             <i class="bi bi-cart-check me-1"></i> New Checkout
         </a>
@@ -34,13 +34,15 @@
                         <div class="small text-muted">{{ $rental->customer->phone }}</div>
                     </td>
                     <td>
-                        <div class="small">Out: {{ $rental->checkout_at->format('M d, Y') }}</div>
+                        <div class="small">Out: {{ $rental->checkout_at?->format('M d, Y') ?? 'Pending checkout' }}</div>
                         <div class="small {{ $rental->isOverdue() ? 'text-danger fw-bold' : 'text-muted' }}">
-                            Due: {{ $rental->due_at->format('M d, Y') }}
+                            Due: {{ $rental->due_at?->format('M d, Y') ?? 'N/A' }}
                         </div>
                     </td>
                     <td>
-                        @if($rental->status === 'Active')
+                        @if($rental->status === 'Pending')
+                            <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-2 py-1">Booked</span>
+                        @elseif($rental->status === 'Active')
                             <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">In Use</span>
                         @elseif($rental->status === 'Returned')
                             <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">Returned</span>
@@ -49,7 +51,14 @@
                         @endif
                     </td>
                     <td class="text-end pe-4">
-                        @if($rental->status === 'Active' || $rental->status === 'Overdue')
+                        @if($rental->status === 'Pending')
+                        <form action="{{ route('shop-admin.rentals.checkout', $rental) }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-primary px-3" data-confirm="Check out this booking now?">
+                                Checkout
+                            </button>
+                        </form>
+                        @elseif($rental->status === 'Active' || $rental->status === 'Overdue')
                         <form action="{{ route('shop-admin.rentals.return', $rental) }}" method="POST" class="d-inline">
                             @csrf
                             <button type="submit" class="btn btn-sm btn-success px-3" data-confirm="Process tool return and calculate final price?">

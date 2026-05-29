@@ -61,11 +61,20 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-medium">Discount</label>
+                            @if(Auth::user()->hasRole(['shop-admin', 'manager']))
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
                                 <input type="number" step="0.01" min="0" name="discount" class="form-control @error('discount') is-invalid @enderror" value="{{ old('discount', 0) }}">
                             </div>
                             <div class="form-text">Applied to the final total on return.</div>
+                            @else
+                            <input type="hidden" name="discount" value="0">
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" value="0.00" disabled>
+                            </div>
+                            <div class="form-text">Discounts require Shop Admin or Manager approval.</div>
+                            @endif
                             @error('discount') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                         </div>
                     </div>
@@ -76,7 +85,8 @@
                     </div>
                     
                     <div class="d-flex gap-2 pt-3 border-top">
-                        <button type="submit" class="btn btn-primary px-4">Process Checkout</button>
+                        <button type="submit" name="action_type" value="checkout" class="btn btn-primary px-4">Process Checkout</button>
+                        <button type="submit" name="action_type" value="booking" class="btn btn-outline-primary px-4">Reserve Booking</button>
                         <a href="{{ route('shop-admin.rentals.index') }}" class="btn btn-light border px-4">Cancel</a>
                     </div>
                 </form>

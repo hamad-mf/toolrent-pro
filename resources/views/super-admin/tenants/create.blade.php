@@ -16,7 +16,7 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">White-label System Name</label>
-                    <input type="text" name="system_name" class="form-control" value="ToolRent Pro">
+                    <input type="text" name="system_name" class="form-control" value="{{ old('system_name', 'ToolRent Pro') }}">
                 </div>
             </div>
 
@@ -28,13 +28,49 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Primary Brand Color</label>
-                    <input type="color" name="primary_color" class="form-control form-control-color w-100" value="#0d6efd">
+                    <input type="color" name="primary_color" class="form-control form-control-color w-100" value="{{ old('primary_color', '#0d6efd') }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Plan</label>
+                    <select name="plan" class="form-select" required>
+                        @foreach(['Basic', 'Standard', 'Premium'] as $plan)
+                            <option value="{{ $plan }}" {{ old('plan', $defaultPlan) === $plan ? 'selected' : '' }}>{{ $plan }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Max Users</label>
+                    <input type="number" name="max_users" class="form-control" value="{{ old('max_users', 5) }}" min="1" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Max Tools</label>
+                    <input type="number" name="max_tools" class="form-control" value="{{ old('max_tools', 50) }}" min="1" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Secondary Brand Color</label>
+                    <input type="color" name="secondary_color" class="form-control form-control-color w-100" value="{{ old('secondary_color', '#6c757d') }}">
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Shop Logo</label>
+                    <input type="file" name="logo" class="form-control" accept="image/*">
                 </div>
             </div>
 
             <div class="mb-4">
-                <label class="form-label">Shop Logo</label>
-                <input type="file" name="logo" class="form-control" accept="image/*">
+                <label class="form-label">Favicon</label>
+                <input type="file" name="favicon" class="form-control" accept=".ico,.png,.jpg,.jpeg,.svg">
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Custom CSS</label>
+                <textarea name="custom_css" class="form-control" rows="4" placeholder="Optional trusted tenant CSS">{{ old('custom_css') }}</textarea>
+                <div class="form-text">Only add CSS from trusted shop administrators.</div>
             </div>
 
             <div class="mb-4">

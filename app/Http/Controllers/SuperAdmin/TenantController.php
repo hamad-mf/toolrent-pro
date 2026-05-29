@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 
@@ -16,26 +17,38 @@ class TenantController extends Controller
 
     public function create()
     {
-        return view('super-admin.tenants.create');
+        $defaultPlan = Setting::get('default_plan', 'Basic');
+
+        return view('super-admin.tenants.create', compact('defaultPlan'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:tenants',
-            'plan' => 'required|string',
+            'slug' => 'required|string|max:255|alpha_dash|unique:tenants',
+            'plan' => 'required|string|in:Basic,Standard,Premium',
             'max_users' => 'required|integer|min:1',
             'max_tools' => 'required|integer|min:1',
             'primary_color' => 'nullable|string|max:7',
+            'secondary_color' => 'nullable|string|max:7',
             'system_name' => 'nullable|string|max:255',
             'logo' => 'nullable|image|max:2048',
+            'favicon' => 'nullable|file|mimes:ico,png,jpg,jpeg,svg|max:1024',
+            'custom_css' => 'nullable|string|max:10000',
             'features' => 'nullable|array',
+            'features.*' => 'string|in:categories,tools,customers,rentals,reports,invoicing,qrcode',
         ]);
 
         if ($request->hasFile('logo')) {
             $validated['logo'] = $request->file('logo')->store('logos', 'public');
         }
+
+        if ($request->hasFile('favicon')) {
+            $validated['favicon'] = $request->file('favicon')->store('favicons', 'public');
+        }
+
+        $validated['features'] = $validated['features'] ?? [];
 
         Tenant::create($validated);
 
@@ -51,20 +64,30 @@ class TenantController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:tenants,slug,' . $tenant->id,
-            'plan' => 'required|string',
+            'slug' => 'required|string|max:255|alpha_dash|unique:tenants,slug,' . $tenant->id,
+            'plan' => 'required|string|in:Basic,Standard,Premium',
             'max_users' => 'required|integer|min:1',
             'max_tools' => 'required|integer|min:1',
             'primary_color' => 'nullable|string|max:7',
+            'secondary_color' => 'nullable|string|max:7',
             'system_name' => 'nullable|string|max:255',
             'logo' => 'nullable|image|max:2048',
+            'favicon' => 'nullable|file|mimes:ico,png,jpg,jpeg,svg|max:1024',
+            'custom_css' => 'nullable|string|max:10000',
             'is_active' => 'required|boolean',
             'features' => 'nullable|array',
+            'features.*' => 'string|in:categories,tools,customers,rentals,reports,invoicing,qrcode',
         ]);
 
         if ($request->hasFile('logo')) {
             $validated['logo'] = $request->file('logo')->store('logos', 'public');
         }
+
+        if ($request->hasFile('favicon')) {
+            $validated['favicon'] = $request->file('favicon')->store('favicons', 'public');
+        }
+
+        $validated['features'] = $validated['features'] ?? [];
 
         $tenant->update($validated);
 

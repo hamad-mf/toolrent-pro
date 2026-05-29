@@ -20,13 +20,21 @@ class SettingsController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'system_name' => 'nullable|string|max:255',
             'primary_color' => 'required|string|max:7',
+            'secondary_color' => 'nullable|string|max:7',
             'logo' => 'nullable|image|max:2048',
+            'favicon' => 'nullable|file|mimes:ico,png,jpg,jpeg,svg|max:1024',
+            'custom_css' => 'nullable|string|max:10000',
         ]);
 
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('logos', 'public');
             $validated['logo'] = $path;
+        }
+
+        if ($request->hasFile('favicon')) {
+            $validated['favicon'] = $request->file('favicon')->store('favicons', 'public');
         }
 
         $tenant->update($validated);

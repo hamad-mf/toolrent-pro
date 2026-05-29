@@ -49,7 +49,7 @@ class Rental extends Model
 
     public function isOverdue(): bool
     {
-        return $this->status !== 'Returned'
+        return !in_array($this->status, ['Pending', 'Returned'])
             && $this->due_at
             && $this->due_at->isPast();
     }

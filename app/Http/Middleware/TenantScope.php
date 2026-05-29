@@ -23,6 +23,11 @@ class TenantScope
             $tenant = Tenant::where('slug', $subdomain)->first();
             
             if ($tenant) {
+                if (!$tenant->is_active) {
+                    session()->forget(['tenant_id', 'tenant_name', 'tenant_primary_color']);
+                    abort(403, 'This shop is currently inactive.');
+                }
+
                 $this->setTenantSession($tenant);
                 return $next($request);
             }
@@ -32,6 +37,11 @@ class TenantScope
         if (Auth::check() && Auth::user()->tenant_id) {
             $tenant = Auth::user()->tenant;
             if ($tenant) {
+                if (!$tenant->is_active) {
+                    session()->forget(['tenant_id', 'tenant_name', 'tenant_primary_color']);
+                    return $next($request);
+                }
+
                 $this->setTenantSession($tenant);
                 return $next($request);
             }

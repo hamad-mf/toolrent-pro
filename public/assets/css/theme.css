@@ -89,7 +89,7 @@ a { color: var(--tr-primary); }
 
 /* Accent utilities follow the tenant color */
 .text-primary { color: var(--tr-primary) !important; }
-.bg-primary   { background-color: var(--tr-primary) !important; }
+.bg-primary   { background-color: rgba(var(--tr-primary-rgb), var(--bs-bg-opacity, 1)) !important; }
 .border-primary { border-color: var(--tr-primary) !important; }
 
 .btn-primary {

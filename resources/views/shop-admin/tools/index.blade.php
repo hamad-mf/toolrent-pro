@@ -11,6 +11,7 @@
             <div class="btn-group">
                 <a href="{{ route('shop-admin.tools.index') }}" class="btn btn-sm {{ !request('status') ? 'btn-primary' : 'btn-light border' }}">All</a>
                 <a href="{{ route('shop-admin.tools.index', ['status' => 'Available']) }}" class="btn btn-sm {{ request('status') === 'Available' ? 'btn-primary' : 'btn-light border' }}">Available</a>
+                <a href="{{ route('shop-admin.tools.index', ['status' => 'Reserved']) }}" class="btn btn-sm {{ request('status') === 'Reserved' ? 'btn-primary' : 'btn-light border' }}">Reserved</a>
                 <a href="{{ route('shop-admin.tools.index', ['status' => 'Rented']) }}" class="btn btn-sm {{ request('status') === 'Rented' ? 'btn-primary' : 'btn-light border' }}">Rented</a>
             </div>
         </div>
@@ -46,6 +47,8 @@
                     <td>
                         @if($tool->status === 'Available')
                             <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">Available</span>
+                        @elseif($tool->status === 'Reserved')
+                            <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-2 py-1">Reserved</span>
                         @elseif($tool->status === 'Rented')
                             <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">Rented</span>
                         @else
@@ -53,14 +56,14 @@
                         @endif
                     </td>
                     <td class="text-end pe-4">
-                        @if(Auth::user()->tenant->hasFeature('qrcode'))
+                        @if(Auth::user()->hasRole(['shop-admin', 'manager']) && Auth::user()->tenant->hasFeature('qrcode'))
                             <a href="{{ route('shop-admin.tools.qrcode', $tool) }}" class="btn btn-sm btn-light border text-secondary me-1" title="QR Code"><i class="bi bi-qr-code"></i></a>
                         @endif
                         
                         @if(Auth::user()->hasRole(['shop-admin', 'manager', 'floor-staff']))
                             <form action="{{ route('shop-admin.tools.maintenance', $tool) }}" method="POST" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-sm btn-light border text-warning me-1" title="{{ $tool->status === 'Maintenance' ? 'Mark Available' : 'Mark Maintenance' }}" {{ $tool->status === 'Rented' ? 'disabled' : '' }}>
+                                <button type="submit" class="btn btn-sm btn-light border text-warning me-1" title="{{ $tool->status === 'Maintenance' ? 'Mark Available' : 'Mark Maintenance' }}" {{ in_array($tool->status, ['Rented', 'Reserved']) ? 'disabled' : '' }}>
                                     <i class="bi {{ $tool->status === 'Maintenance' ? 'bi-check-circle' : 'bi-tools' }}"></i>
                                 </button>
                             </form>
@@ -71,7 +74,7 @@
                         <form action="{{ route('shop-admin.tools.destroy', $tool) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-light border text-danger" data-confirm="Delete this tool permanently?" {{ $tool->rentals()->count() > 0 ? 'disabled' : '' }}>
+                            <button type="submit" class="btn btn-sm btn-light border text-danger" data-confirm="Delete this tool permanently?" {{ $tool->rentals_count > 0 ? 'disabled' : '' }}>
                                 Delete
                             </button>
                         </form>

@@ -25,34 +25,53 @@ Route::middleware(['auth', 'role:shop-admin,manager,counter-staff,floor-staff'])
     Route::get('/dashboard', [App\Http\Controllers\ShopAdmin\DashboardController::class, 'index'])->name('dashboard');
 
     // Tools — every shop role can view the inventory list and individual tools.
-    Route::get('/tools', [App\Http\Controllers\ShopAdmin\ToolController::class, 'index'])->name('tools.index');
-    Route::get('/tools/{tool}', [App\Http\Controllers\ShopAdmin\ToolController::class, 'show'])->name('tools.show')->whereNumber('tool');
+    Route::middleware('feature:tools')->group(function () {
+        Route::get('/tools', [App\Http\Controllers\ShopAdmin\ToolController::class, 'index'])->name('tools.index');
+        Route::get('/tools/{tool}', [App\Http\Controllers\ShopAdmin\ToolController::class, 'show'])->name('tools.show')->whereNumber('tool');
+    });
 
     // Floor Staff capability: toggle maintenance / update condition.
-    Route::middleware('role:shop-admin,manager,floor-staff')->group(function () {
+    Route::middleware(['role:shop-admin,manager,floor-staff', 'feature:tools'])->group(function () {
         Route::post('/tools/{tool}/maintenance', [App\Http\Controllers\ShopAdmin\ToolController::class, 'toggleMaintenance'])->name('tools.maintenance');
+        Route::post('/tools/{tool}/condition', [App\Http\Controllers\ShopAdmin\ToolController::class, 'updateCondition'])->name('tools.condition');
     });
 
     // Inventory management (create/edit/delete tools, categories, QR codes) — shop-admin + manager.
     Route::middleware('role:shop-admin,manager')->group(function () {
-        Route::resource('categories', App\Http\Controllers\ShopAdmin\CategoryController::class)->except(['show']);
-        Route::get('/tools/{tool}/qrcode', [App\Http\Controllers\ShopAdmin\ToolController::class, 'qrcode'])->name('tools.qrcode');
-        Route::resource('tools', App\Http\Controllers\ShopAdmin\ToolController::class)->except(['index', 'show']);
+        Route::middleware('feature:categories')->group(function () {
+            Route::resource('categories', App\Http\Controllers\ShopAdmin\CategoryController::class)->except(['show']);
+        });
+
+        Route::get('/tools/{tool}/qrcode', [App\Http\Controllers\ShopAdmin\ToolController::class, 'qrcode'])
+            ->middleware('feature:tools,qrcode')
+            ->name('tools.qrcode');
+
+        Route::resource('tools', App\Http\Controllers\ShopAdmin\ToolController::class)
+            ->middleware('feature:tools')
+            ->except(['index', 'show']);
 
         // Reports
-        Route::get('/reports', [App\Http\Controllers\ShopAdmin\ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports', [App\Http\Controllers\ShopAdmin\ReportController::class, 'index'])
+            ->middleware('feature:reports')
+            ->name('reports.index');
     });
 
     // Counter operations: customers + rental lifecycle — shop-admin, manager, counter-staff.
     Route::middleware('role:shop-admin,manager,counter-staff')->group(function () {
-        Route::resource('customers', App\Http\Controllers\ShopAdmin\CustomerController::class);
+        Route::resource('customers', App\Http\Controllers\ShopAdmin\CustomerController::class)
+            ->middleware('feature:customers');
 
-        Route::get('/rentals', [App\Http\Controllers\ShopAdmin\RentalController::class, 'index'])->name('rentals.index');
-        Route::get('/rentals/checkout', [App\Http\Controllers\ShopAdmin\RentalController::class, 'create'])->name('rentals.create');
-        Route::post('/rentals/checkout', [App\Http\Controllers\ShopAdmin\RentalController::class, 'store'])->name('rentals.store');
-        Route::get('/rentals/{rental}', [App\Http\Controllers\ShopAdmin\RentalController::class, 'show'])->name('rentals.show');
-        Route::post('/rentals/{rental}/return', [App\Http\Controllers\ShopAdmin\RentalController::class, 'returnTool'])->name('rentals.return');
-        Route::get('/rentals/{rental}/invoice', [App\Http\Controllers\ShopAdmin\RentalController::class, 'invoice'])->name('rentals.invoice');
+        Route::middleware('feature:rentals')->group(function () {
+            Route::get('/rentals', [App\Http\Controllers\ShopAdmin\RentalController::class, 'index'])->name('rentals.index');
+            Route::get('/rentals/checkout', [App\Http\Controllers\ShopAdmin\RentalController::class, 'create'])->name('rentals.create');
+            Route::post('/rentals/checkout', [App\Http\Controllers\ShopAdmin\RentalController::class, 'store'])->name('rentals.store');
+            Route::get('/rentals/{rental}', [App\Http\Controllers\ShopAdmin\RentalController::class, 'show'])->name('rentals.show');
+            Route::post('/rentals/{rental}/checkout', [App\Http\Controllers\ShopAdmin\RentalController::class, 'checkoutBooking'])->name('rentals.checkout');
+            Route::post('/rentals/{rental}/return', [App\Http\Controllers\ShopAdmin\RentalController::class, 'returnTool'])->name('rentals.return');
+            Route::get('/rentals/{rental}/invoice', [App\Http\Controllers\ShopAdmin\RentalController::class, 'invoice'])
+                ->middleware('feature:invoicing')
+                ->name('rentals.invoice');
+        });
     });
 
     // Shop administration: staff management + white-label settings — shop-admin only.

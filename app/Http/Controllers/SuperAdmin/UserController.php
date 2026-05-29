@@ -10,7 +10,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with(['role', 'tenant'])->latest()->paginate(15);
+        $users = User::with(['role', 'tenant'])->withCount('processedRentals')->latest()->paginate(15);
         return view('super-admin.users.index', compact('users'));
     }
 
@@ -18,6 +18,10 @@ class UserController extends Controller
     {
         if ($user->id === auth()->id()) {
             return redirect()->back()->with('error', 'You cannot delete yourself.');
+        }
+
+        if ($user->processedRentals()->exists()) {
+            return redirect()->back()->with('error', 'Cannot delete a user with rental history. Deactivate the account from staff management instead.');
         }
 
         $user->delete();

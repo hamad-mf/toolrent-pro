@@ -15,7 +15,11 @@
                 <span class="tr-kpi-chip tr-chip-primary"><i class="bi bi-tools"></i></span>
             </div>
             <div class="card-footer border-0 pt-0">
+                @if(Auth::user()->tenant->hasFeature('tools'))
                 <a class="text-decoration-none small fw-medium" href="{{ route('shop-admin.tools.index') }}">Manage Tools <i class="bi bi-arrow-right"></i></a>
+                @else
+                <span class="text-muted small">Tools module disabled</span>
+                @endif
             </div>
         </div>
     </div>
@@ -30,7 +34,11 @@
                 <span class="tr-kpi-chip tr-chip-success"><i class="bi bi-check-circle"></i></span>
             </div>
             <div class="card-footer border-0 pt-0">
+                @if(Auth::user()->tenant->hasFeature('tools'))
                 <a class="text-decoration-none small fw-medium" href="{{ route('shop-admin.tools.index', ['status' => 'Available']) }}">View Available <i class="bi bi-arrow-right"></i></a>
+                @else
+                <span class="text-muted small">Tools module disabled</span>
+                @endif
             </div>
         </div>
     </div>
@@ -45,7 +53,11 @@
                 <span class="tr-kpi-chip tr-chip-warning"><i class="bi bi-calendar-check"></i></span>
             </div>
             <div class="card-footer border-0 pt-0">
+                @if(Auth::user()->tenant->hasFeature('tools'))
                 <a class="text-decoration-none small fw-medium" href="{{ route('shop-admin.tools.index', ['status' => 'Rented']) }}">View Rented <i class="bi bi-arrow-right"></i></a>
+                @else
+                <span class="text-muted small">Tools module disabled</span>
+                @endif
             </div>
         </div>
     </div>
@@ -60,7 +72,11 @@
                 <span class="tr-kpi-chip tr-chip-info"><i class="bi bi-tags"></i></span>
             </div>
             <div class="card-footer border-0 pt-0">
+                @if(Auth::user()->hasRole(['shop-admin', 'manager']) && Auth::user()->tenant->hasFeature('categories'))
                 <a class="text-decoration-none small fw-medium" href="{{ route('shop-admin.categories.index') }}">Manage Categories <i class="bi bi-arrow-right"></i></a>
+                @else
+                <span class="text-muted small">Inventory grouping</span>
+                @endif
             </div>
         </div>
     </div>
@@ -84,6 +100,7 @@
             <div class="card-header py-3">
                 <h6 class="mb-0 fw-bold">Recent Rentals</h6>
             </div>
+            @if($canViewRentals)
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" style="font-size: 0.8rem;">
                     <thead>
@@ -99,7 +116,9 @@
                             <td class="ps-3">{{ $rental->tool->name }}</td>
                             <td>{{ $rental->customer->name }}</td>
                             <td>
-                                @if($rental->status === 'Active')
+                                @if($rental->status === 'Pending')
+                                    <span class="badge bg-info px-2 py-1">Booked</span>
+                                @elseif($rental->status === 'Active')
                                     <span class="badge bg-primary px-2 py-1">In Use</span>
                                 @elseif($rental->status === 'Returned')
                                     <span class="badge bg-success px-2 py-1">Done</span>
@@ -121,6 +140,14 @@
                 <a href="{{ route('shop-admin.rentals.index') }}" class="small text-decoration-none">View all rentals</a>
             </div>
             @endif
+            @else
+            <div class="card-body d-flex align-items-center justify-content-center text-center text-muted">
+                <div>
+                    <i class="bi bi-shield-lock display-6 d-block mb-2 opacity-50"></i>
+                    <div class="small">Rental records are not available for this role or shop plan.</div>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </div>
@@ -140,6 +167,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 data: {!! json_encode($chartData['data']) !!},
                 backgroundColor: [
                     token('--tr-success') || '#198754',
+                    token('--tr-info') || '#0dcaf0',
                     token('--tr-warning') || '#ffc107',
                     token('--tr-text-subtle') || '#6c757d'
                 ],
@@ -158,7 +186,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Refresh chart colors when the theme changes
     document.documentElement.addEventListener('tr-theme-changed', function() {
-        chart.data.datasets[0].backgroundColor = [token('--tr-success'), token('--tr-warning'), token('--tr-text-subtle')];
+        chart.data.datasets[0].backgroundColor = [token('--tr-success'), token('--tr-info'), token('--tr-warning'), token('--tr-text-subtle')];
         chart.options.plugins.legend.labels.color = token('--tr-text-muted');
         chart.update();
     });

@@ -12,7 +12,7 @@
         </a>
     </div>
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0 datatable">
             <thead class="table-light">
                 <tr>
                     <th class="ps-4">Name</th>
@@ -46,7 +46,7 @@
                         <form action="{{ route('shop-admin.staff.destroy', $user) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-light border text-danger" data-confirm="Delete this staff member permanently?">
+                            <button type="submit" class="btn btn-sm btn-light border text-danger" data-confirm="Delete this staff member permanently?" {{ $user->processed_rentals_count > 0 ? 'disabled' : '' }}>
                                 Delete
                             </button>
                         </form>

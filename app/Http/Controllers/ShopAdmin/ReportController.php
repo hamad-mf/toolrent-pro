@@ -14,9 +14,19 @@ class ReportController extends Controller
     {
         $revenue = Rental::where('status', 'Returned')->sum('total_price');
         $totalRentals = Rental::count();
+        $totalTools = Tool::count();
+        $inUseTools = Tool::whereIn('status', ['Reserved', 'Rented'])->count();
+        $utilizationRate = $totalTools > 0 ? round(($inUseTools / $totalTools) * 100, 1) : 0;
         
         $topTools = Tool::withCount('rentals')
             ->orderBy('rentals_count', 'desc')
+            ->take(5)
+            ->get();
+
+        $overdueRentals = Rental::with(['customer', 'tool'])
+            ->whereIn('status', ['Active', 'Overdue'])
+            ->where('due_at', '<', now())
+            ->latest('due_at')
             ->take(5)
             ->get();
 
@@ -27,6 +37,13 @@ class ReportController extends Controller
             ->orderBy('date')
             ->get();
 
-        return view('shop-admin.reports.index', compact('revenue', 'totalRentals', 'topTools', 'recentRevenue'));
+        return view('shop-admin.reports.index', compact(
+            'revenue',
+            'totalRentals',
+            'topTools',
+            'recentRevenue',
+            'overdueRentals',
+            'utilizationRate'
+        ));
     }
 }

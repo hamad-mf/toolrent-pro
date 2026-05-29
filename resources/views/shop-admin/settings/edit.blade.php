@@ -11,33 +11,57 @@
                 <h6 class="mb-0 fw-bold">Brand Configuration</h6>
             </div>
             <div class="card-body p-4">
-                <div class="alert alert-light border small text-muted mb-4">
-                    <i class="bi bi-info-circle me-1"></i> These settings are managed by the system administrator and are read-only for shop staff.
-                </div>
-                
-                <div class="mb-4">
-                    <label class="form-label text-muted small text-uppercase fw-bold">Shop Display Name</label>
-                    <div class="fs-5 fw-medium">{{ $tenant->name }}</div>
-                </div>
+                <form action="{{ route('shop-admin.settings.update') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
 
-                <div class="mb-4">
-                    <label class="form-label text-muted small text-uppercase fw-bold">Brand Color</label>
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="rounded-circle border" style="width: 24px; height: 24px; background-color: {{ $tenant->primary_color }}"></div>
-                        <code>{{ $tenant->primary_color }}</code>
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Shop Display Name</label>
+                        <input type="text" name="name" class="form-control" value="{{ old('name', $tenant->name) }}" required>
                     </div>
-                </div>
 
-                <div class="mb-0">
-                    <label class="form-label text-muted small text-uppercase fw-bold">Shop Logo</label>
-                    <div class="p-3 bg-light rounded d-inline-block d-block">
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">White-label System Name</label>
+                        <input type="text" name="system_name" class="form-control" value="{{ old('system_name', $tenant->system_name) }}">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-medium">Primary Brand Color</label>
+                            <input type="color" name="primary_color" class="form-control form-control-color w-100" value="{{ old('primary_color', $tenant->primary_color) }}" required>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-medium">Secondary Brand Color</label>
+                            <input type="color" name="secondary_color" class="form-control form-control-color w-100" value="{{ old('secondary_color', $tenant->secondary_color) }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Shop Logo</label>
                         @if($tenant->logo)
-                            <img src="{{ asset('storage/' . $tenant->logo) }}" alt="Logo" style="max-height: 40px;">
-                        @else
-                            <span class="text-muted italic small">No logo uploaded by administrator.</span>
+                            <div class="mb-2"><img src="{{ asset('storage/' . $tenant->logo) }}" alt="Logo" style="max-height: 40px;"></div>
                         @endif
+                        <input type="file" name="logo" class="form-control" accept="image/*">
                     </div>
-                </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Favicon</label>
+                        @if($tenant->favicon)
+                            <div class="mb-2"><img src="{{ asset('storage/' . $tenant->favicon) }}" alt="Favicon" style="max-height: 24px;"></div>
+                        @endif
+                        <input type="file" name="favicon" class="form-control" accept=".ico,.png,.jpg,.jpeg,.svg">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Custom CSS</label>
+                        <textarea name="custom_css" class="form-control" rows="4" placeholder="Optional trusted tenant CSS">{{ old('custom_css', $tenant->custom_css) }}</textarea>
+                        <div class="form-text">Only add CSS from trusted shop administrators.</div>
+                    </div>
+
+                    <div class="pt-3 border-top">
+                        <button type="submit" class="btn btn-primary px-4">Save Brand Settings</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

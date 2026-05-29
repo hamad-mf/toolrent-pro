@@ -68,6 +68,11 @@
                     </div>
 
                     <div class="mb-4">
+                        <label class="form-label fw-medium">Condition Notes</label>
+                        <textarea name="condition_notes" class="form-control" rows="3" placeholder="Current condition, included accessories, visible wear, etc.">{{ old('condition_notes') }}</textarea>
+                    </div>
+
+                    <div class="mb-4">
                         <label class="form-label fw-medium">Tool Photo</label>
                         <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
                         @error('image') <div class="invalid-feedback">{{ $message }}</div> @enderror

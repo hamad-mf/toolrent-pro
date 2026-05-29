@@ -49,7 +49,7 @@
                         <form action="{{ route('shop-admin.customers.destroy', $customer) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-light border text-danger" data-confirm="Delete this customer profile permanently? This will fail if they have rental history.">
+                            <button type="submit" class="btn btn-sm btn-light border text-danger" data-confirm="Delete this customer profile permanently?" {{ $customer->rentals_count > 0 ? 'disabled' : '' }}>
                                 Delete
                             </button>
                         </form>

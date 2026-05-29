@@ -57,6 +57,7 @@
                             <label class="form-label fw-medium">Status *</label>
                             <select name="status" class="form-select" required>
                                 <option value="Available" {{ old('status', $tool->status) == 'Available' ? 'selected' : '' }}>Available</option>
+                                <option value="Reserved" {{ old('status', $tool->status) == 'Reserved' ? 'selected' : '' }}>Reserved</option>
                                 <option value="Rented" {{ old('status', $tool->status) == 'Rented' ? 'selected' : '' }}>Rented</option>
                                 <option value="Maintenance" {{ old('status', $tool->status) == 'Maintenance' ? 'selected' : '' }}>Maintenance</option>
                             </select>
@@ -66,6 +67,11 @@
                     <div class="mb-4">
                         <label class="form-label fw-medium">Description</label>
                         <textarea name="description" class="form-control" rows="3">{{ old('description', $tool->description) }}</textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Condition Notes</label>
+                        <textarea name="condition_notes" class="form-control" rows="3">{{ old('condition_notes', $tool->condition_notes) }}</textarea>
                     </div>
 
                     <div class="mb-4">

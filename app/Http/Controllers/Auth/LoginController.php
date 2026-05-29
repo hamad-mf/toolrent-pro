@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -27,6 +29,13 @@ class LoginController extends Controller
      */
     protected $redirectTo = '/home';
 
+    protected function credentials(Request $request): array
+    {
+        return array_merge($request->only($this->username(), 'password'), [
+            'is_active' => true,
+        ]);
+    }
+
     /**
      * The user has been authenticated.
      *
@@ -36,6 +45,16 @@ class LoginController extends Controller
      */
     protected function authenticated(\Illuminate\Http\Request $request, $user)
     {
+        if ($user->tenant && !$user->tenant->is_active && !$user->isSuperAdmin()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->withErrors([
+                'email' => 'This shop is currently inactive.',
+            ]);
+        }
+
         $user->update([
             'last_login_at' => now()
         ]);

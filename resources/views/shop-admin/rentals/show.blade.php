@@ -10,7 +10,9 @@
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom-0">
                 <h6 class="mb-0 fw-bold">Rental Information</h6>
                 <div>
-                    @if($rental->status === 'Active')
+                    @if($rental->status === 'Pending')
+                        <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-3 py-2">Booked</span>
+                    @elseif($rental->status === 'Active')
                         <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2">In Use</span>
                     @elseif($rental->status === 'Returned')
                         <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2">Returned</span>
@@ -39,13 +41,13 @@
                     <div class="col-md-4">
                         <div class="p-3 bg-light rounded-3">
                             <small class="text-muted d-block mb-1">Checkout Date</small>
-                            <span class="fw-medium">{{ $rental->checkout_at->format('M d, Y H:i') }}</span>
+                            <span class="fw-medium">{{ $rental->checkout_at?->format('M d, Y H:i') ?? 'Pending checkout' }}</span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 bg-light rounded-3">
                             <small class="text-muted d-block mb-1">Due Date</small>
-                            <span class="fw-medium">{{ $rental->due_at->format('M d, Y') }}</span>
+                            <span class="fw-medium">{{ $rental->due_at?->format('M d, Y') ?? 'N/A' }}</span>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -74,6 +76,27 @@
                     </div>
                 </div>
 
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 h-100">
+                            <small class="text-muted d-block mb-1">Deposit</small>
+                            <span class="fw-medium">${{ number_format($rental->deposit, 2) }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 h-100">
+                            <small class="text-muted d-block mb-1">Discount</small>
+                            <span class="fw-medium">${{ number_format($rental->discount, 2) }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 h-100">
+                            <small class="text-muted d-block mb-1">Late Fee</small>
+                            <span class="fw-medium">${{ number_format($rental->late_fee, 2) }}</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-4">
                     <h6 class="text-muted small text-uppercase fw-bold mb-2">Internal Notes</h6>
                     <div class="p-3 border rounded-3 bg-light min-vh-10">
@@ -82,7 +105,16 @@
                 </div>
 
                 <div class="d-flex gap-2">
-                    @if($rental->status === 'Active')
+                    @if($rental->status === 'Pending')
+                    <form action="{{ route('shop-admin.rentals.checkout', $rental) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-primary px-4" data-confirm="Check out this booking now?">
+                            <i class="bi bi-cart-check me-1"></i> Check Out Booking
+                        </button>
+                    </form>
+                    @endif
+
+                    @if(in_array($rental->status, ['Active', 'Overdue']))
                     <form action="{{ route('shop-admin.rentals.return', $rental) }}" method="POST" class="d-inline">
                         @csrf
                         <button type="submit" class="btn btn-success px-4" data-confirm="Confirm tool return and calculate the final price?">

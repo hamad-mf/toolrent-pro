@@ -10,7 +10,7 @@ class CustomerController extends Controller
 {
     public function index()
     {
-        $customers = Customer::latest()->paginate(10);
+        $customers = Customer::withCount('rentals')->latest()->paginate(10);
         return view('shop-admin.customers.index', compact('customers'));
     }
 
@@ -38,7 +38,9 @@ class CustomerController extends Controller
 
     public function edit(Customer $customer)
     {
-        return view('shop-admin.customers.edit', compact('customer'));
+        $rentals = $customer->rentals()->with('tool')->latest()->take(10)->get();
+
+        return view('shop-admin.customers.edit', compact('customer', 'rentals'));
     }
 
     public function update(Request $request, Customer $customer)
@@ -61,8 +63,8 @@ class CustomerController extends Controller
 
     public function destroy(Customer $customer)
     {
-        if ($customer->rentals()->whereIn('status', ['Active', 'Overdue'])->count() > 0) {
-            return redirect()->back()->with('error', 'Cannot delete customer with active or overdue rentals.');
+        if ($customer->rentals()->exists()) {
+            return redirect()->back()->with('error', 'Cannot delete customer because rental history exists. Deactivate the customer instead.');
         }
 
         $customer->delete();

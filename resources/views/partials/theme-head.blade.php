@@ -19,6 +19,11 @@
     [$r, $g, $b] = (is_array($parsed) && count($parsed) === 3 && $parsed[0] !== null)
         ? $parsed
         : [79, 70, 229];
+    $secondary = ($tenant->secondary_color ?? '#6c757d');
+    $secondaryParsed = sscanf($secondary, "#%02x%02x%02x");
+    [$sr, $sg, $sb] = (is_array($secondaryParsed) && count($secondaryParsed) === 3 && $secondaryParsed[0] !== null)
+        ? $secondaryParsed
+        : [108, 117, 125];
 @endphp
 <style>
     :root,
@@ -28,6 +33,8 @@
         --tr-primary-rgb: {{ $r }}, {{ $g }}, {{ $b }};
         --bs-primary: {{ $accent }};
         --bs-primary-rgb: {{ $r }}, {{ $g }}, {{ $b }};
+        --bs-secondary: {{ $secondary }};
+        --bs-secondary-rgb: {{ $sr }}, {{ $sg }}, {{ $sb }};
         --bs-link-color: {{ $accent }};
     }
 </style>

@@ -72,5 +72,35 @@
             </div>
         </div>
     </div>
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header bg-white py-3 border-bottom-0">
+                <h6 class="mb-0 fw-bold">Rental History</h6>
+            </div>
+            <div class="list-group list-group-flush">
+                @forelse($rentals as $rental)
+                    @if(Auth::user()->tenant->hasFeature('rentals'))
+                    <a href="{{ route('shop-admin.rentals.show', $rental) }}" class="list-group-item list-group-item-action bg-transparent">
+                        <div class="d-flex justify-content-between gap-2">
+                            <span class="fw-medium">{{ $rental->tool->name }}</span>
+                            <span class="badge bg-light text-dark border">{{ $rental->status }}</span>
+                        </div>
+                        <div class="small text-muted">{{ $rental->created_at->format('M d, Y') }}</div>
+                    </a>
+                    @else
+                    <div class="list-group-item bg-transparent">
+                        <div class="d-flex justify-content-between gap-2">
+                            <span class="fw-medium">{{ $rental->tool->name }}</span>
+                            <span class="badge bg-light text-dark border">{{ $rental->status }}</span>
+                        </div>
+                        <div class="small text-muted">{{ $rental->created_at->format('M d, Y') }}</div>
+                    </div>
+                    @endif
+                @empty
+                    <div class="list-group-item bg-transparent text-muted small py-4 text-center">No rentals yet.</div>
+                @endforelse
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

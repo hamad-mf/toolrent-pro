@@ -32,10 +32,34 @@ class Tenant extends Model
         return $this->hasMany(User::class);
     }
 
+    public function categories(): HasMany
+    {
+        return $this->hasMany(Category::class);
+    }
+
+    public function tools(): HasMany
+    {
+        return $this->hasMany(Tool::class);
+    }
+
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
+    }
+
+    public function rentals(): HasMany
+    {
+        return $this->hasMany(Rental::class);
+    }
+
     public function hasFeature(string $feature): bool
     {
-        // Default features enabled if null
-        if (!$this->features) return true;
-        return in_array($feature, $this->features);
+        // If features is null, we assume all core features are enabled by default
+        if (is_null($this->features)) {
+            $coreFeatures = ['categories', 'tools', 'customers', 'rentals', 'reports', 'invoicing', 'qrcode'];
+            return in_array($feature, $coreFeatures);
+        }
+
+        return in_array($feature, (array)$this->features);
     }
 }

@@ -103,6 +103,15 @@
         </nav>
 
         <main class="py-5">
+            @if(\App\Models\Setting::get('maintenance_mode', '0') === '1')
+                <div class="container">
+                    <div class="alert alert-warning shadow-sm">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Platform maintenance mode is enabled.
+                    </div>
+                </div>
+            @endif
+
             @yield('content')
         </main>
     </div>

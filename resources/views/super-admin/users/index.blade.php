@@ -38,7 +38,7 @@
                         <form action="{{ route('super-admin.users.destroy', $user) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-light border text-danger" data-confirm="Permanently delete this user account?">
+                            <button type="submit" class="btn btn-sm btn-light border text-danger" data-confirm="Permanently delete this user account?" {{ $user->processed_rentals_count > 0 ? 'disabled' : '' }}>
                                 Delete
                             </button>
                         </form>

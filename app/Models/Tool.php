@@ -17,9 +17,16 @@ class Tool extends Model
         'model_number',
         'serial_number',
         'description',
+        'condition_notes',
+        'condition_updated_at',
+        'condition_updated_by',
         'daily_rate',
         'status',
         'image',
+    ];
+
+    protected $casts = [
+        'condition_updated_at' => 'datetime',
     ];
 
     public function category()
@@ -30,5 +37,10 @@ class Tool extends Model
     public function rentals()
     {
         return $this->hasMany(Rental::class);
+    }
+
+    public function conditionUpdatedBy()
+    {
+        return $this->belongsTo(User::class, 'condition_updated_by');
     }
 }
